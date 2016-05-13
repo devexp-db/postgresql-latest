@@ -491,6 +491,10 @@ export PYTHON=/usr/bin/python3
 cd src/backend
 make submake-errcodes
 cd ../..
+# This line somehow fixes build under 9.6
+# originaly it contained this error:
+# ../../../src/include/storage/lwlock.h:129:33: fatal error: storage/lwlocknames.h: No such file or directory
+make %{?_smp_mflags}
 cd src/pl/plpython
 make %{?_smp_mflags} all
 cd ..
