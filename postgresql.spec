@@ -66,8 +66,8 @@
 Summary: PostgreSQL client programs
 Name: postgresql
 %global majorversion 9.6
-Version: 9.6beta1
-Release: 2%{?dist}
+Version: 9.6beta2
+Release: 1%{?dist}
 
 # The PostgreSQL license is very similar to other MIT licenses, but the OSI
 # recognizes it as an independent license, so we do as well.
@@ -1222,6 +1222,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 21 2016 Pavel Kajaba <pkajaba@redhat.com> - 9.6beta2-1
+- Updated to 9.6beta2
+
 * Tue Jun 21 2016 Pavel Kajaba <pkajaba@redhat.com> - 9.6beta1-2
 - Included new libs (bloom, pg_visibility and libpgfeutils)
   Added make to fix problems with build
