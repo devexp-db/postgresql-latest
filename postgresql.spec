@@ -971,6 +971,7 @@ fi
 %{_bindir}/vacuumlo
 %{_datadir}/pgsql/extension/adminpack*
 %{_datadir}/pgsql/extension/autoinc*
+%{_datadir}/pgsql/extension/bloom*
 %{_datadir}/pgsql/extension/btree_gin*
 %{_datadir}/pgsql/extension/btree_gist*
 %{_datadir}/pgsql/extension/chkpass*
@@ -996,6 +997,7 @@ fi
 %{_datadir}/pgsql/extension/pg_prewarm*
 %{_datadir}/pgsql/extension/pg_stat_statements*
 %{_datadir}/pgsql/extension/pg_trgm*
+%{_datadir}/pgsql/extension/pg_visibility*
 %{_datadir}/pgsql/extension/pgcrypto*
 %{_datadir}/pgsql/extension/pgrowlocks*
 %{_datadir}/pgsql/extension/pgstattuple*
@@ -1014,6 +1016,7 @@ fi
 %{_libdir}/pgsql/auth_delay.so
 %{_libdir}/pgsql/auto_explain.so
 %{_libdir}/pgsql/autoinc.so
+%{_libdir}/pgsql/bloom.so
 %{_libdir}/pgsql/btree_gin.so
 %{_libdir}/pgsql/btree_gist.so
 %{_libdir}/pgsql/chkpass.so
@@ -1046,6 +1049,7 @@ fi
 %{_libdir}/pgsql/pg_freespacemap.so
 %{_libdir}/pgsql/pg_stat_statements.so
 %{_libdir}/pgsql/pg_trgm.so
+%{_libdir}/pgsql/pg_visibility.so
 %{_libdir}/pgsql/pgcrypto.so
 %{_libdir}/pgsql/pgrowlocks.so
 %{_libdir}/pgsql/pgstattuple.so
@@ -1091,6 +1095,7 @@ fi
 %doc COPYRIGHT
 %{_libdir}/libecpg.so.*
 %{_libdir}/libecpg_compat.so.*
+%{_libdir}/libpgfeutils.a
 %{_libdir}/libpgtypes.so.*
 %{_libdir}/libpq.so.*
 
