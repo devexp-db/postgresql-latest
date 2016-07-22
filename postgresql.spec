@@ -66,7 +66,7 @@
 Summary: PostgreSQL client programs
 Name: postgresql
 %global majorversion 9.6
-Version: 9.6beta2
+Version: 9.6beta3
 Release: 1%{?dist}
 
 # The PostgreSQL license is very similar to other MIT licenses, but the OSI
@@ -1222,6 +1222,9 @@ fi
 %endif
 
 %changelog
+* Fri Jul 22 2016 Pavel Raiskup <praiskup@redhat.com> - 9.6beta3-1
+- Update to 9.6beta3
+
 * Tue Jun 21 2016 Pavel Kajaba <pkajaba@redhat.com> - 9.6beta2-1
 - Updated to 9.6beta2
 
