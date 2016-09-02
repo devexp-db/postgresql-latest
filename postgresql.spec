@@ -66,7 +66,7 @@
 Summary: PostgreSQL client programs
 Name: postgresql
 %global majorversion 9.6
-Version: 9.6beta3
+Version: 9.6rc1
 Release: 1%{?dist}
 
 # The PostgreSQL license is very similar to other MIT licenses, but the OSI
@@ -113,7 +113,6 @@ Source17: ftp://ftp.postgresql.org/pub/source/v%{prevversion}/postgresql-%{prevv
 Patch1: rpm-pgsql.patch
 Patch2: postgresql-logging.patch
 Patch3: postgresql-perl-rpath.patch
-Patch4: postgresql-config-comment.patch
 Patch5: postgresql-var-run-socket.patch
 Patch6: postgresql-man.patch
 
@@ -361,7 +360,6 @@ benchmarks.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
 %patch5 -p1
 %patch6 -p1
 
@@ -1222,6 +1220,9 @@ fi
 %endif
 
 %changelog
+* Fri Sep 02 2016 Pavel Raiskup <praiskup@redhat.com> - 9.6rc1-1
+- Update to 9.6rc1
+
 * Fri Jul 22 2016 Pavel Raiskup <praiskup@redhat.com> - 9.6beta3-1
 - Update to 9.6beta3
 
