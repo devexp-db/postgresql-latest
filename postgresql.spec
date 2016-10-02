@@ -82,7 +82,7 @@ Url: http://www.postgresql.org/
 # in-place upgrade of an old database.  In most cases it will not be critical
 # that this be kept up with the latest minor release of the previous series;
 # but update when bugs affecting pg_dump output are fixed.
-%global prevversion 9.5.3
+%global prevversion 9.5.4
 %global prevmajorversion 9.5
 
 %global setup_version 4.0
@@ -94,7 +94,6 @@ Source1: postgresql-%{version}-US.pdf
 Source2: generate-pdf.sh
 Source3: ftp://ftp.postgresql.org/pub/source/v%{prevversion}/postgresql-%{prevversion}.tar.bz2
 Source4: Makefile.regress
-Source5: multilib-fix
 Source9: postgresql.tmpfiles.d
 Source10: postgresql.pam
 Source11: postgresql-bashprofile
@@ -118,8 +117,10 @@ Patch6: postgresql-man.patch
 
 BuildRequires: perl(ExtUtils::MakeMaker) glibc-devel bison flex gawk help2man
 BuildRequires: perl(ExtUtils::Embed), perl-devel
+BuildRequires: perl-generators
 BuildRequires: readline-devel zlib-devel
 BuildRequires: systemd-units util-linux
+BuildRequires: multilib-rpm-config
 
 # postgresql-setup build requires
 BuildRequires: m4 elinks docbook-utils help2man
@@ -485,20 +486,13 @@ export PYTHON=/usr/bin/python3
 	--with-system-tzdata=%{_datadir}/zoneinfo \
 	--datadir=%{_datadir}/pgsql
 
-# Fortunately we don't need to build much except plpython itself
-cd src/backend
-make submake-errcodes
-cd ../..
-# This line somehow fixes build under 9.6
-# originaly it contained this error:
-# ../../../src/include/storage/lwlock.h:129:33: fatal error: storage/lwlocknames.h: No such file or directory
-make %{?_smp_mflags}
-cd src/pl/plpython
-make %{?_smp_mflags} all
-cd ..
+# Fortunately we don't need to build much except plpython itself.
+# TODO: remove the headers hack once this is resolved:
+# https://www.postgresql.org/message-id/1925924.izSMJEZO3x@unused-4-107.brq.redhat.com
+make %{?_smp_mflags} submake-generated-headers
+make %{?_smp_mflags} -C src/pl/plpython all
 # save built form in a directory that "make distclean" won't touch
-cp -a plpython plpython3
-cd ../..
+cp -a src/pl/plpython src/pl/plpython3
 
 # must also save this version of Makefile.global for later
 cp src/Makefile.global src/Makefile.global.python3
@@ -565,29 +559,26 @@ sed "s|C=\`pwd\`;|C=%{_libdir}/pgsql/tutorial;|" < src/tutorial/Makefile > src/t
 make %{?_smp_mflags} -C src/tutorial NO_PGXS=1 all
 rm -f src/tutorial/GNUmakefile
 
-test_failure=0
-
 # run_testsuite WHERE
 # -------------------
 # Run 'make check' in WHERE path.  When that command fails, return the logs
-# given by PostgreSQL build system and set 'test_failure=1'.
-
+# given by PostgreSQL build system and set 'test_failure=1'.  This function
+# never exits directly nor stops rpmbuild where `set -e` is enabled.
 run_testsuite()
 {
-	make -C "$1" MAX_CONNECTIONS=5 check && return 0
-
-	test_failure=1
-
+	make -k -C "$1" MAX_CONNECTIONS=5 check && return 0 || test_failure=1
 	(
 		set +x
 		echo "=== trying to find all regression.diffs files in build directory ==="
-		find -name 'regression.diffs' | \
+		find "$1" -name 'regression.diffs' | \
 		while read line; do
 			echo "=== make failure: $line ==="
 			cat "$line"
 		done
 	)
 }
+
+test_failure=0
 
 %if %runselftest
 	run_testsuite "src/test/regress"
@@ -689,12 +680,14 @@ install -D -m 644 macros.%{name} \
     $RPM_BUILD_ROOT%{macrosdir}/macros.%{name}
 
 # multilib header hack; some headers are installed in two places!
-%global ml_fix_c_header %{SOURCE5} --buildroot "$RPM_BUILD_ROOT"
-for header in pg_config pg_config_ext ecpg_config; do
-%ml_fix_c_header --destdir "%{_includedir}" --basename "$header"
-done
-for header in pg_config pg_config_ext; do
-%ml_fix_c_header --destdir "%{_includedir}/pgsql/server" --basename "$header"
+for header in \
+	%{_includedir}/pg_config.h \
+	%{_includedir}/pg_config_ext.h \
+	%{_includedir}/ecpg_config.h \
+	%{_includedir}/pgsql/server/pg_config.h \
+	%{_includedir}/pgsql/server/pg_config_ext.h
+do
+%multilib_fix_c_header --file "$header"
 done
 
 install -d -m 755 $RPM_BUILD_ROOT%{_libdir}/pgsql/tutorial
@@ -1093,7 +1086,6 @@ fi
 %doc COPYRIGHT
 %{_libdir}/libecpg.so.*
 %{_libdir}/libecpg_compat.so.*
-%{_libdir}/libpgfeutils.a
 %{_libdir}/libpgtypes.so.*
 %{_libdir}/libpq.so.*
 
@@ -1178,6 +1170,7 @@ fi
 
 %files static
 %{_libdir}/libpgcommon.a
+%{_libdir}/libpgfeutils.a
 %{_libdir}/libpgport.a
 
 %if %upgrade
@@ -1220,8 +1213,10 @@ fi
 %endif
 
 %changelog
-* Tue Sep 27 2016 Pavel Raiskup <praiskup@redhat.com> - 9.6.0-1
-- update to 9.6.0
+* Sun Oct 02 2016 Pavel Raiskup <praiskup@redhat.com> - 9.6.0-1
+- Update to 9.6.0,  per release notes
+  http://www.postgresql.org/docs/devel/static/release-9-6.html
+- merge fixes from Fedora rawhide
 
 * Fri Sep 02 2016 Pavel Raiskup <praiskup@redhat.com> - 9.6rc1-1
 - Update to 9.6rc1
